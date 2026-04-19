@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spring-boot-app
+  labels:
+    app: basic-deploy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: basic-deploy
+  template:
+    metadata:
+      labels:
+        app: basic-deploy
+    spec:
+      containers:
+        - name: spring-container
+          image: ipenitcdocker/k8s-basic-deploy:v1 # Change to your image
+          ports:
+            - containerPort: 9091
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"

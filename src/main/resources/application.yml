@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: k8s-basic-deploy
+server:
+  port: 9091

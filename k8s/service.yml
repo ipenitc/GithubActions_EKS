@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: spring-boot-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: basic-deploy
+  ports:
+    - protocol: TCP
+      port: 80         # Port you use in your browser
+      targetPort: 9091  # Port where the Spring app is listening
