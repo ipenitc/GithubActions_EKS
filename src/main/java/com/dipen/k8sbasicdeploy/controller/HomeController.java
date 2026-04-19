@@ -10,6 +10,6 @@ public class HomeController {
 
     @GetMapping
     public String home(){
-        return "Welcome from HomeController!!!!!How are you today?";
+        return "We welcome you to Kubernetes Basic Deployment!";
     }
 }

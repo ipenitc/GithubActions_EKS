@@ -16,7 +16,8 @@ spec:
     spec:
       containers:
         - name: spring-container
-          image: ipenitcdocker/k8s-basic-deploy:v1 # Change to your image
+          image: ipenitcdocker/k8s-basic-deploy:latest # Change to your image
+          imagePullPolicy: Always
           ports:
             - containerPort: 9091
           resources:
