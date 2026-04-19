@@ -19,6 +19,9 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
+      - name: Grant Execute Permission for Gradle Wrapper
+        run: chmod +x ./gradlew
+
       - name: Build with Gradle
         run: ./gradlew clean bootJar -x test
 
