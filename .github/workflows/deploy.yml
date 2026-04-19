@@ -1,13 +1,17 @@
-name: CI/CD Pipeline to EKS
+name: Production EKS Deploy
 
 on:
   push:
-    branches: [ "main" ] # Triggered only when you push to the main branch
+    branches: [ "main" ]
+
+# This section is CRITICAL for OIDC to work
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -19,8 +23,8 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - name: Grant Execute Permission for Gradle Wrapper
-        run: chmod +x ./gradlew
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
       - name: Build with Gradle
         run: ./gradlew clean bootJar -x test
@@ -38,20 +42,19 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/k8s-basic-deploy:latest
 
-      - name: Configure AWS Credentials
+      - name: Configure AWS Credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          # Use the Role ARN you created in the previous step
+          role-to-assume: arn:aws:iam::666127452756:role/GitHubEKSDeployRole
+          aws-region: eu-west-2
 
       - name: Update Kubeconfig
-        run: aws eks update-kubeconfig --name ${{ secrets.AWS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
+        run: aws eks update-kubeconfig --name ${{ secrets.AWS_CLUSTER_NAME }} --region eu-west-2
 
       - name: Deploy to EKS
         run: |
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
-          # Force a restart to pull the 'latest' image
+          # This force-refreshes the pods to pull the new 'latest' image
           kubectl rollout restart deployment/spring-boot-app
